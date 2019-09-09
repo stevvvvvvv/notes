@@ -193,5 +193,122 @@ one4all pail;
 pail.int_val = 15;
 pail.double_val = 1.38;
 ```
-因此，`pail`有时可以是`int`，有时可以是`double`。
+因此，`pail`有时可以是`int`，有时可以是`double`。共用体的用途之一是当数据项使用两种或更多种格式（但不会同时使用时）节省空间以及内存。
 
+##### 枚举
+
+- `c++`的`enum`工具提供了另一种创建符号常量的方式，可以代替`const`还可以定义新类型：
+`enum spectrum {red, orange, yellow, green, blue, violet, indigo, ultraviolet};`
+这条语句完成两项工作：
+
+  -   让`spectrum`成为新类型的名称；`spectrum`被称为枚举。
+  -   将`red, orange, yellow`等作为符号常量，它们对应整数`0~7`，称为枚举量。
+
+可以使用枚举名来声明这种类型的变量：
+```
+spectrum band;
+```
+在不进行强制类型转换的情况下，只能将定义枚举时使用的枚举量赋给这种枚举的变量：
+```
+band = blue;
+```
+因此`spectrum`变量受到限制，只有8个可能的值。枚举更常被用来定义相关的符号变量，而不是新类型。
+
+-    设置枚举量的值
+
+可以用以下方式给枚举量赋值：
+```
+enum bits{one = 1, two = 2, four = 4, eight = 8};
+enum bigstep{first, second = 100, third};
+enum {zero, null = 0, one, numero_uno = 1}; //  这种情况下zero=null=0, one=numero_uno=1
+```
+
+-   枚举量的取值范围
+
+取值范围的定义：首先找出上限，需要知道枚举量的最大值。找到大于这个最大值的、最小的2的幂，将其减去1得到的便是取值范围的上限。例如`bigstep`中最大值为100，则上限值为$128 - 1 = 127$。要计算下限需要找到最小值，如果它不小于0，那么取值范围的下限为0，否则与寻找上限的方法相同，但是加上负号。例如最小值为-6，则比它小的、最大的2次幂是-8，因此下限是$-8 + 1 = 7$。
+
+##### 指针和自由存储空间
+
+-   计算机程序在存储数据时必须跟踪的3种基本类型：
+
+    -   信息存储在何处
+    -   存储的值为多少
+    -   存储的信息是什么类型
+
+定义变量的另一种策略是以指针为基础，指针是一个变量，它存储的是值的地址而不是值本身。
+
+在讨论指针前我们先看看如何找到常规变量的地址，只需要使用`&`：
+```
+#include <iostream>
+int main()
+{
+    using namespace std;
+    int donuts = 6;
+    double cups = 4.5;
+
+    cout << "donuts value = " << donuts;
+    cout << " and donuts address = " << &donuts << endl;
+    cout << "cups value = " << cups;
+    cout << " and cups address = " << &cups << endl;
+    return 0; 
+}
+```
+
+显示地址时使用十六进制表示法，这是常用于描述内存的表示法，两个地址值的差可能是4或8，这是`int`及`double`的长度。
+
+使用常规变量时，值是指定的量，而地址是派生量。使用指针存储数据的方法刚好相反：将地址视为指定的量，而将值视为派生量。一种特殊类型的变量——指针用于存储值的地址，因此指针名表示的是地址，`*`运算符被称为间接值或接触引用运算符，将其用于指针可以得到该地址处存储的值。例：
+```
+#include <iostream>
+int main()
+{
+    using namespace std;
+    int updates = 6;
+    int *p_updates;
+    p_updates = &updates;
+
+    cout << "Values: updates = " << updates;
+    cout << ", *p_updates = " << *p_updates << endl;
+    
+    *p_updates = *p_updates + 1;
+    cout << "Now updates = " << updates << endl;
+    return 0;
+}
+```
+
+-   声明和初始化指针
+
+指针声明必须指定指针指向的数据的类型，如：
+```
+int *p_updates;
+double *tax_ptr;
+char *str;
+```
+这说明`*p_updates`的类型是`int`，而`p_updates`为一个指向`int`的指针,而`tax_ptr, str`分别是指向`double, char`的指针。
+
+可以在声明语句中初始化指针，在这种情况下被初始化的是指针，而不是它指向的值：
+```
+int higgens = 5;
+int * pt = &higgens;
+```
+这段语句将`pt`(而不是`*pt`)的值设置为`&higgens`
+
+指针的初始化方法：
+```
+#include <iostream>
+int main()
+{
+    using namespace std;
+    int higgens = 5;
+    int *pt = &higgens;
+
+    cout << "Value of higgens = " << higgens
+    << "; Address of higgens = " << &higgens << endl;
+    cout << "Value of *pt = " << *pt
+    << "; Value of pt = " << pt << endl;
+    return 0;
+}
+```
+
+-   指针的危险
+
+`c++`中创建指针时，计算机将分配用来存储地址的内存，
