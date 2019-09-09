@@ -1,3 +1,4 @@
+[toc]
 ##### 数组
 
 数组(`array`)能够存储多个同类型的值，创建数组使用声明语句，指出：
@@ -311,4 +312,112 @@ int main()
 
 -   指针的危险
 
-`c++`中创建指针时，计算机将分配用来存储地址的内存，
+`c++`中创建指针时，计算机将分配用来**存储地址**的内存，但不会分配用来存储**所指向的数据**的内存。如下：
+```
+long *fellow;
+*fellow = 223323;
+```
+`fellow`的确是一个指针，但是代码没有将地址赋给`fellow`，由于`fellow`没有被初始化，它可以是任何值。
+
+-   指针和数字
+
+指针不是整型，不能简单地将整数赋给指针，要将数字值作为地址来用，应当通过强制类型转换将数字转换为适当的地址类型：
+```
+ing * pt;
+pt = (int *)0xB8000000;
+```
+这样赋值语句的两边都是整数的地址，是一个有效的赋值。
+
+-   使用`new`来分配内存
+
+通过使用指针可以在运行阶段分配未命名的内存以存储值，在这种情况下只能通过指针访问内存。我们可以通过`malloc()`或者`new`来分配内存。
+```
+int * pn = new int;
+typeName * pointer_name = new typeName;
+```
+`new int`告诉程序需要适合存储`int`的内存，`new`运算符根据类型确定需要内存的字节数，然后找到这样的内存并返回地址，接下来将地址赋值给`pn`。
+```
+#include <iostream>
+int main()
+{
+    using namespace std;
+    int nights = 1001;
+    int * pt = new int;
+    *pt = 1001;
+
+    cout << "nights value = "
+    << nights << ": location " << &nights << endl;
+    cout << "int value = " << *pt << ": location = " << pt << endl;
+
+    double * pd = new double;
+    *pd = 10000001.0;
+
+    cout << "double " << "value = " << *pd << ": location = " << pd << endl;
+    cout << "location of pd:" << &pd << endl;
+    return 0;
+}
+```
+-   使用`delete`释放内存
+
+```
+int * ps = new int;
+//  ... some action
+delete ps;
+```
+`delete`将释放`ps`指向的内存，但不会删除`ps`指针本身，一定要配对地使用`new`和`delete`，否则会发生内存泄露。
+
+-   使用`new`创建动态数组
+
+如果程序只需要一个值，可能会通过声明一个简单变量的方法；对于大型数据（数组、字符串和结构）是`new`的用武之地。
+
+假设程序需要一个数组，但是这个数组的元素是有条件读取的。如果我们在一开始就声明数组，给它分配相应的空间，这种方法叫做静态联编；但使用`new`时，如果在运行阶段需要数组，则创建它，这样可以在程序运行时选择数组长度的方法叫做动态联编，意味着数组是在程序运行时创建的，这种数组叫做动态数组。
+
+1. 使用`new`创建动态数组
+
+在`c++`中创建动态数组：
+`int * psome = new int [10];`
+`new`运算符返回第一个元素的地址。当程序使用完`new`分配的内存块时，应使用`delete`释放他们：
+`delete [] psome;`
+方括号告诉程序应释放整个数组，而不仅仅是指针指向的元素。方括号的使用如下：
+```
+int * pt = new int;
+delete [] pt;
+short * ps = new short [500];
+delete ps;
+```
+使用`new`和`delete`时应当遵循：
+   1. 不要使用`delete`释放不是`new`分配的内存
+   2. 不要使用`delete`释放同一个内存块两次
+   3. 如果使用`new []`为数组分配内存，则应使用`delete []`来释放
+   4. 如果使用`new []`为一个实体分配内存，则应使用`delete`来释放
+   5. 对空指针应用`delete`是安全的
+   
+为数组分配内存的通用格式：
+`type_name * pointer_name = new type_name [num_elements];`
+
+2. 使用动态数组
+
+`int * psome = new int [10];`
+可以看作是一根指向数组第一个元素的手指，可以使用`psome[n]`访问第`n`个元素。
+```
+#include <iostream>
+int main()
+{
+    using namespace std;
+    double * p3 = new double [3];
+    p3[0] = 0.2;
+    p3[1] = 0.5;
+    p3[2] = 0.8;
+    cout << "p3[1] is " << p3[1] << ".\n";
+    p3 = p3 + 1;
+    cout << "Now p3[0] is " << p3[0] << " and ";
+    cout << "p3[1] is " << p3[1] << ".\n";
+    p3 = p3 - 1;
+    delete [] p3;
+    return 0;
+}
+```
+`p3 = p3 + 1`不能修改数组名的值，但是可以修改指针的值，最后`delete`前将指针值的修改重置以便于给`delete []`提供正确的地址。
+
+##### 指针、数组和指针算术
+指针和数组
