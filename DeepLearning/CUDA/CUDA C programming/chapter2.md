@@ -1,4 +1,7 @@
 # CUDA C编程权威指南(chapter 2)
+
+[toc]
+
 ### 第二章 CUDA编程模型
 - CUDA程序实现向量加法和向量乘法。
 
