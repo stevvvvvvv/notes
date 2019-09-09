@@ -420,4 +420,13 @@ int main()
 `p3 = p3 + 1`不能修改数组名的值，但是可以修改指针的值，最后`delete`前将指针值的修改重置以便于给`delete []`提供正确的地址。
 
 ##### 指针、数组和指针算术
-指针和数组
+指针和数组基本等价的原因在于指针算术和`c++`内部处理数组的方式。将整数变量加1后，其值将增加1；将指针变量加1后，增加的量等于它指向的类型的字节数。
+
+在多数情况下，`c++`将数组名解释为数组第1个元素的地址。下面的语句将`pw`声明为指向`double`类型的指针，然后将它初始化为`wages`：
+`double * pw = wages;`
+和所有数组一样，`wages`也存在以下关系：
+`pw = &wages[0] = address of first element of array`
+且有如下形式的转换：
+`arrayname[i] becomes *(arrayname + i);    //  对于数组`
+`pointername[i] becomes *(pointername + i); //  对于指针`
+
