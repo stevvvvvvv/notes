@@ -193,3 +193,5 @@ one4all pail;
 pail.int_val = 15;
 pail.double_val = 1.38;
 ```
+因此，`pail`有时可以是`int`，有时可以是`double`。
+
