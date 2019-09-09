@@ -1,5 +1,5 @@
 #include <iostream>
-#include <sys/time.h>
+// #include <sys/time.h>
 
 bool is_a_ge_zero_and_a_lt_b(int a,int b)
 {
@@ -7,14 +7,14 @@ bool is_a_ge_zero_and_a_lt_b(int a,int b)
     return false;
 }
 
-inline double seconds()
-{
-    struct timeval tp;
-    struct timezone tzp;
-    int i = gettimeofday(&tp, &tzp);
-//    return ((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
-    return ((double)tp.tv_usec);
-}
+// inline double seconds()
+// {
+//     struct timeval tp;
+//     struct timezone tzp;
+//     int i = gettimeofday(&tp, &tzp);
+// //    return ((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
+//     return ((double)tp.tv_usec);
+// }
 
 // void im2col_cpu(const float* data_im,
 //     const int channels,
@@ -305,7 +305,7 @@ int main()
     cout << endl;
     cout << endl;
 
-    iStart = seconds();
+    // iStart = seconds();
     im2col_cpu(data_im,
     channels,
     height,
@@ -319,8 +319,8 @@ int main()
     dilation_h,
     dilation_w,
     data_col);
-    iElaps = seconds() - iStart;
-    cout << "col2im cost: " << iElaps << "secodes" << endl;
+    // iElaps = seconds() - iStart;
+    // cout << "col2im cost: " << iElaps << "secodes" << endl;
 
 
     cout << channels << endl;
@@ -344,7 +344,7 @@ int main()
     float *data_im_trans;
     data_im_trans = new float[channels * height * width]; //  开辟相应字节的空间数
 
-    iStart = seconds();
+    // iStart = seconds();
     col2im_cpu(data_col,
     channels,
     height,
@@ -358,8 +358,8 @@ int main()
     dilation_h,
     dilation_w,
     data_im_trans);
-    iElaps = seconds() - iStart;
-    cout << "col2im cost: " << iElaps << "secodes" << endl;
+    // iElaps = seconds() - iStart;
+    // cout << "col2im cost: " << iElaps << "secodes" << endl;
     //  col2im的结果是放大过后的
 
   for (int m = 0; m < channels; ++m)
