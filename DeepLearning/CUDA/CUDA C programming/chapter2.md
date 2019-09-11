@@ -216,7 +216,7 @@ printf("block.x %d block.y %d block.z %d\n", block.x, block.y, block.z);
 
 ```c++
 printf("threadIdx:(%d, %d, %d)  blockIdx:(%d, %d, %d) blockDim:(%d, %d, %d) gridDim:(%d, %d, %d)\n",
-threadIdx.x, threadIdx.y, threadIdx.z, blockIdx.x,blockIdx.y, blockIdx.z, 
+threadIdx.x, threadIdx.y, threadIdx.z, blockIdx.x,blockIdx.y, blockIdx.z,
 blockDim.x, blockDim.y, blockDim.z, gridDim.x,gridDim.y, gridDim.z);
 ```
 
@@ -259,8 +259,7 @@ threadIdx:(1, 0, 0)  blockIdx:(1, 0, 0)  blockDim:(3, 1, 1)  gridDim:(2, 1, 1)
 threadIdx:(2, 0, 0)  blockIdx:(1, 0, 0)  blockDim:(3, 1, 1)  gridDim:(2, 1, 1)
 ```
 
-**可见，两个Dim的数据是不变的，只有索引在不断改变**
-
+- **可见，两个Dim的数据是不变的，只有索引在不断改变**
 - 从主机端和设备端访问网格/块变量
 
 1. 从主机端访问块变量：`block.x, block.y, block.z`
@@ -285,32 +284,32 @@ threadIdx:(2, 0, 0)  blockIdx:(1, 0, 0)  blockDim:(3, 1, 1)  gridDim:(2, 1, 1)
 
 int main(int argc, char **argv)
 {
-	//	define total data elements
-	int nElem = 1024;
+    // define total data elements
+    int nElem = 1024;
 
-	//	define grid and bolck structure
-	dim3 block (1024);
-	dim3 grid((nElem + block.x - 1) / block.x);
-	printf("grid.x %d block.x %d \n", grid.x, block.x);
+    // define grid and bolck structure
+    dim3 block (1024);
+    dim3 grid((nElem + block.x - 1) / block.x);
+    printf("grid.x %d block.x %d \n", grid.x, block.x);
 
-	//	reset block
-	block.x = 512;
-	grid.x = (nElem + block.x - 1) / block.x;
-	printf("grid.x %d block.x %d \n", grid.x, block.x);
+    // reset block
+    block.x = 512;
+    grid.x = (nElem + block.x - 1) / block.x;
+    printf("grid.x %d block.x %d \n", grid.x, block.x);
 
-	//	reset block
-	block.x = 256;
-	grid.x = (nElem + block.x - 1) / block.x;
-	printf("grid.x %d block.x %d \n", grid.x, block.x);
+    // reset block
+    block.x = 256;
+    grid.x = (nElem + block.x - 1) / block.x;
+    printf("grid.x %d block.x %d \n", grid.x, block.x);
 
-	//	reset block
-	block.x = 128;
-	grid.x = (nElem + block.x - 1) / block.x;
-	printf("grid.x %d block.x %d \n", grid.x, block.x);
+    // reset block
+    block.x = 128;
+    grid.x = (nElem + block.x - 1) / block.x;
+    printf("grid.x %d block.x %d \n", grid.x, block.x);
 
-	//	reset device before you leave
-	cudaDeviceReset();
-	return 0;
+    // reset device before you leave
+    cudaDeviceReset();
+    return 0;
 }
 ```
 
@@ -335,7 +334,7 @@ function_name (argument list);
 
 - CUDA内核调用是对C语言调用语句的延伸，<<<>>>运算符内是核函数的配置参数：
 
-```
+```c++
 kernel_name <<<grid, block>>>(argument list);
 ```
 
@@ -433,23 +432,23 @@ sumArrayOnGPU<<<1, 32>>>(float *A, float *B, float *C);
 ```c++
 void checkResult(float* hostRef, float* gpuRef, const int N)
 {
-	double epsilon = 1.0E-8;
-	int match = 1;
-	for (int i = 0; i < N; ++i)
-	{
-		if (abs(hostRef[i] - gpuRef[i] > epsilon))
-		{
-			match = 0;
-			printf("Arrays do not mathc!\n");
-			printf("host %5.2f gpu %5.2f at current %d\n", hostRef[i], gpuRef[i], i);
-			break;
-		}
-	}
-	if (match)
-	{
-		printf("Arrays match.\n");
-	}
-	return;
+    double epsilon = 1.0E-8;
+    int match = 1;
+    for (int i = 0; i < N; ++i)
+    {
+        if (abs(hostRef[i] - gpuRef[i] > epsilon))
+        {
+            match = 0;
+            printf("Arrays do not mathc!\n");
+            printf("host %5.2f gpu %5.2f at current %d\n", hostRef[i], gpuRef[i], i);
+            break;
+        }
+    }
+    if (match)
+    {
+        printf("Arrays match.\n");
+    }
+    return;
 }
 ```
 
@@ -463,16 +462,16 @@ void checkResult(float* hostRef, float* gpuRef, const int N)
 - 定义一个错误处理宏封装所有的CUDA API调用，可以简化错误检查过程：
 
 ```c++
-#define CHECK(call)															\
-{																			\
-	const cudaError_t error = call;											\
-	if (error != cudaSuccess)												\
-	{																		\
-		printf("Error: %s:%d, ",__FILE__, __LINE__)							\
-		printf("code:%d, reason: %s\n", error, cudaGetErrorString(error));	\
-		exit(1);															\
-	}																		\
-}                                                                           \
+#define CHECK(call) \
+{ \
+    const cudaError_t error = call; \
+    if (error != cudaSuccess) \
+    { \
+        printf("Error: %s:%d, ",__FILE__, __LINE__) \
+        printf("code:%d, reason: %s\n", error, cudaGetErrorString(error)); \
+        exit(1); \
+    } \
+} \
 ```
 
 我们可以在以下代码中使用宏：
@@ -511,107 +510,108 @@ CHECK(cudaDeviceSynchronize();
 　　} \
 }
 
-void checkResult(float* hostRef, float* gpuRef, const int N) 
+void checkResult(float* hostRef, float* gpuRef, const int N)
 {
-	double epsilon = 1.0E-8;
-	bool match = 1;
-	for (int i = 0; i < N; i++) {
-		if (abs(hostRef[i] - gpuRef[i]) > epsilon) {
-			match = 0;
-			printf("Arrays do not match!\n");
-			printf("host %5.2f gpu %5.2f at current %d\n", hostRef[i], gpuRef[i], i);
-			break;
-		}
-	}
-	if (match) printf("Arrays match.\n\n");
+    double epsilon = 1.0E-8;
+    bool match = 1;
+    for (int i = 0; i < N; i++) {
+        if (abs(hostRef[i] - gpuRef[i]) > epsilon) {
+            match = 0;
+            printf("Arrays do not match!\n");
+            printf("host %5.2f gpu %5.2f at current %d\n", hostRef[i], gpuRef[i], i);
+            break;
+        }
+    }
+    if (match) printf("Arrays match.\n\n");
 }
 
-void initialData(float* ip, int size) 
+void initialData(float* ip, int size)
 {
-	// generate different seed for random number
-	time_t t;
-	srand((unsigned)time(&t));
-	for (int i = 0; i < size; i++) {
-		ip[i] = (float)(rand() & 0xFF) / 10.0f;
-	}
+    // generate different seed for random number
+    time_t t;
+    srand((unsigned)time(&t));
+    for (int i = 0; i < size; i++) {
+        ip[i] = (float)(rand() & 0xFF) / 10.0f;
+    }
 }
 
-void sumArraysOnHost(float* A, float* B, float* C, const int N) 
+void sumArraysOnHost(float* A, float* B, float* C, const int N)
 {
-	for (int idx = 0; idx < N; idx++)
-		C[idx] = A[idx] + B[idx];
+    for (int idx = 0; idx < N; idx++)
+        C[idx] = A[idx] + B[idx];
 }
 
-__global__ void sumArraysOnGPU(float* A, float* B, float* C) 
+__global__ void sumArraysOnGPU(float* A, float* B, float* C)
 {
-	int i = threadIdx.x;
-	C[i] = A[i] + B[i];
+    int i = threadIdx.x;
+    C[i] = A[i] + B[i];
 }
 
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
-	printf("%s Starting...\n", argv[0]);
-	// set up device
-	// cudaSetDevice函数主要是用来设置使用第几块GPU
-	int dev = 0;
-	cudaSetDevice(dev);
+    printf("%s Starting...\n", argv[0]);
+    // set up device
+    // cudaSetDevice函数主要是用来设置使用第几块GPU
+    int dev = 0;
+    cudaSetDevice(dev);
 
-	// set up data size of vectors
-	int nElem = 32;
-	printf("Vector size %d\n", nElem);
+    // set up data size of vectors
+    int nElem = 32;
+    printf("Vector size %d\n", nElem);
 
-	// malloc host memory
-	size_t nBytes = nElem * sizeof(float);
-	float* h_A, * h_B, * hostRef, * gpuRef;
-	h_A = (float*)malloc(nBytes);
-	h_B = (float*)malloc(nBytes);
-	hostRef = (float*)malloc(nBytes);
-	gpuRef = (float*)malloc(nBytes);
+    // malloc host memory
+    size_t nBytes = nElem * sizeof(float);
+    float* h_A, * h_B, * hostRef, * gpuRef;
+    h_A = (float*)malloc(nBytes);
+    h_B = (float*)malloc(nBytes);
+    hostRef = (float*)malloc(nBytes);
+    gpuRef = (float*)malloc(nBytes);
 
-	// initialize data at host side
-	initialData(h_A, nElem);
-	initialData(h_B, nElem);
-	memset(hostRef, 0, nBytes);
-	memset(gpuRef, 0, nBytes);
+    // initialize data at host side
+    initialData(h_A, nElem);
+    initialData(h_B, nElem);
+    memset(hostRef, 0, nBytes);
+    memset(gpuRef, 0, nBytes);
 
-	// malloc device global memory
-	float* d_A, * d_B, * d_C;
-	cudaMalloc((float**)& d_A, nBytes);
-	cudaMalloc((float**)& d_B, nBytes);
-	cudaMalloc((float**)& d_C, nBytes);
+    // malloc device global memory
+    float* d_A, * d_B, * d_C;
+    cudaMalloc((float**)& d_A, nBytes);
+    cudaMalloc((float**)& d_B, nBytes);
+    cudaMalloc((float**)& d_C, nBytes);
 
-	// transfer data from host to device
-	cudaMemcpy(d_A, h_A, nBytes, cudaMemcpyHostToDevice);
-	cudaMemcpy(d_B, h_B, nBytes, cudaMemcpyHostToDevice);
+    // transfer data from host to device
+    cudaMemcpy(d_A, h_A, nBytes, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, nBytes, cudaMemcpyHostToDevice);
 
-	// invoke kernel at host side
-	dim3 block(nElem);
-	dim3 grid(nElem / block.x);
-	sumArraysOnGPU <<< grid, block >>> (d_A, d_B, d_C);
-	printf("Execution configuration <<<%d, %d>>>\n", grid.x, block.x);
+    // invoke kernel at host side
+    dim3 block(nElem);
+    dim3 grid(nElem / block.x);
+    sumArraysOnGPU <<< grid, block >>> (d_A, d_B, d_C);
+    printf("Execution configuration <<<%d, %d>>>\n", grid.x, block.x);
 
-	// copy kernel result back to host side
-	cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost);
+    // copy kernel result back to host side
+    cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost);
 
-	// add vector at host side for result checks
-	sumArraysOnHost(h_A, h_B, hostRef, nElem);
+    // add vector at host side for result checks
+    sumArraysOnHost(h_A, h_B, hostRef, nElem);
 
-	// check device results
-	checkResult(hostRef, gpuRef, nElem);
+    // check device results
+    checkResult(hostRef, gpuRef, nElem);
 
-	// free device global memory
-	cudaFree(d_A);
-	cudaFree(d_B);
-	cudaFree(d_C);
+    // free device global memory
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
 
-	// free host memory
-	free(h_A);
-	free(h_B);
-	free(hostRef);
-	free(gpuRef);
-	return(0);
+    // free host memory
+    free(h_A);
+    free(h_B);
+    free(hostRef);
+    free(gpuRef);
+    return(0);
 }
 ```
+
 系统报告的结果如下：
 
 ```shell
@@ -684,13 +684,13 @@ __global__ void sumArraysOnGPU(float *A, float *B, float *C, const int N)
 
 #define CHECK(call) \
 { \
-	const cudaError_t error = call; \
-	if (error != cudaSuccess) \
-	{ \
-		printf("Error: %s:%d, ", __FILE__, __LINE__); \
-		printf("code:%d, reason: %s\n", error, cudaGetErrorString(error)); \
-		exit(1); \
-	} \
+    const cudaError_t error = call; \
+    if (error != cudaSuccess) \
+    { \
+        printf("Error: %s:%d, ", __FILE__, __LINE__); \
+        printf("code:%d, reason: %s\n", error, cudaGetErrorString(error)); \
+        exit(1); \
+    } \
 }
 
 double cpuSecond()
@@ -835,6 +835,7 @@ int main(int argc, char** argv)
 	return(0);
 }
 ```
+
 输出如下：
 
 ```shell
@@ -893,7 +894,7 @@ Arrays match.
 
 - CPU上消耗的时间、数据传输所用时间和GPU计算所用时间消耗如下图所示：
 
-![](https://note.youdao.com/yws/api/personal/file/3398CDA4D9C74FCEA755E11AA469A983?method=download&shareKey=13de7a52d4c40e92736bd084a035f13c)
+![image](https://note.youdao.com/yws/api/personal/file/3398CDA4D9C74FCEA755E11AA469A983?method=download&shareKey=13de7a52d4c40e92736bd084a035f13c)
 
 - 比较应用程序的性能叫理论界限最大化
 
