@@ -695,144 +695,144 @@ __global__ void sumArraysOnGPU(float *A, float *B, float *C, const int N)
 
 double cpuSecond()
 {
-	struct timeval tp;
-	gettimeofday(&tp, NULL);
-	return((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    return((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
 }
 
 void initialData(float* ip, int size)
 {
-	// generate different seed for random number
-	time_t t;
-	srand((unsigned)time(&t));
+    // generate different seed for random number
+    time_t t;
+    srand((unsigned)time(&t));
 
-	for (int i = 0; i < size; i++)
-	{
-		ip[i] = (float)(rand() & 0xFF) / 10.0f;
-	}
+    for (int i = 0; i < size; i++)
+    {
+        ip[i] = (float)(rand() & 0xFF) / 10.0f;
+    }
 
-	return;
+    return;
 }
 
 void sumArraysOnHost(float* A, float* B, float* C, const int N)
 {
-	for (int idx = 0; idx < N; idx++)
-	{
-		C[idx] = A[idx] + B[idx];
-	}
+    for (int idx = 0; idx < N; idx++)
+    {
+        C[idx] = A[idx] + B[idx];
+    }
 }
 
 void checkResult(float* hostRef, float* gpuRef, const int N)
 {
-	double epsilon = 1.0E-8;
-	bool match = 1;
-	for (int i = 1; i < N; ++i)
-	{
-		if (abs(hostRef[i] - gpuRef[i]) > epsilon)
-		{
-			match = 0;
-			printf("Array do not match!\n");
-			printf("host %5.2f gpu %5.2f at current %d\n", hostRef[i], gpuRef[i], i);
-			break;
-		}
-	}
-	if (match)
-	{
-		printf("Arrays match.\n\n");
-		return;
-	}
+    double epsilon = 1.0E-8;
+    bool match = 1;
+    for (int i = 1; i < N; ++i)
+    {
+        if (abs(hostRef[i] - gpuRef[i]) > epsilon)
+        {
+            match = 0;
+            printf("Array do not match!\n");
+            printf("host %5.2f gpu %5.2f at current %d\n", hostRef[i], gpuRef[i], i);
+            break;
+        }
+    }
+    if (match)
+    {
+        printf("Arrays match.\n\n");
+        return;
+    }
 }
 
 __global__ void sumArraysOnGPU(float* A, float* B, float* C, const int N)
 {
-	int i = blockIdx.x * blockDim.x + threadIdx.x;
-	if (i < N) { C[i] = A[i] + B[i]; }
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < N) { C[i] = A[i] + B[i]; }
 }
 int main(int argc, char** argv)
 {
-	printf("%s Starting...\n", argv[0]);
+    printf("%s Starting...\n", argv[0]);
 
-	// set up device
-	int dev = 0;
-	cudaDeviceProp deviceProp;
-	CHECK(cudaGetDeviceProperties(&deviceProp, dev));
-	printf("Using Device %d: %s\n", dev, deviceProp.name);
-	CHECK(cudaSetDevice(dev));
+    // set up device
+    int dev = 0;
+    cudaDeviceProp deviceProp;
+    CHECK(cudaGetDeviceProperties(&deviceProp, dev));
+    printf("Using Device %d: %s\n", dev, deviceProp.name);
+    CHECK(cudaSetDevice(dev));
 
-	// set up data size of vectors
-	int nElem = 1 << 24;
-	printf("Vector size %d\n", nElem);
+    // set up data size of vectors
+    int nElem = 1 << 24;
+    printf("Vector size %d\n", nElem);
 
-	// malloc host memory
-	size_t nBytes = nElem * sizeof(float);
+    // malloc host memory
+    size_t nBytes = nElem * sizeof(float);
 
-	float* h_A, * h_B, * hostRef, * gpuRef;
-	h_A = (float*)malloc(nBytes);
-	h_B = (float*)malloc(nBytes);
-	hostRef = (float*)malloc(nBytes);
-	gpuRef = (float*)malloc(nBytes);
+    float* h_A, * h_B, * hostRef, * gpuRef;
+    h_A = (float*)malloc(nBytes);
+    h_B = (float*)malloc(nBytes);
+    hostRef = (float*)malloc(nBytes);
+    gpuRef = (float*)malloc(nBytes);
 
-	double iStart, iElaps;
+    double iStart, iElaps;
 
-	// initialize data at host side
-	iStart = cpuSecond();
-	initialData(h_A, nElem);
-	initialData(h_B, nElem);
-	iElaps = cpuSecond() - iStart;
-	printf("initialData Time elapsed %f sec\n", iElaps);
-	memset(hostRef, 0, nBytes);
-	memset(gpuRef, 0, nBytes);
+    // initialize data at host side
+    iStart = cpuSecond();
+    initialData(h_A, nElem);
+    initialData(h_B, nElem);
+    iElaps = cpuSecond() - iStart;
+    printf("initialData Time elapsed %f sec\n", iElaps);
+    memset(hostRef, 0, nBytes);
+    memset(gpuRef, 0, nBytes);
 
-	// add vector at host side for result checks
-	iStart = cpuSecond();
-	sumArraysOnHost(h_A, h_B, hostRef, nElem);
-	iElaps = cpuSecond() - iStart;
-	printf("sumArraysOnHost Time elapsed %f sec\n", iElaps);
+    // add vector at host side for result checks
+    iStart = cpuSecond();
+    sumArraysOnHost(h_A, h_B, hostRef, nElem);
+    iElaps = cpuSecond() - iStart;
+    printf("sumArraysOnHost Time elapsed %f sec\n", iElaps);
 
-	// malloc device global memory
-	float* d_A, * d_B, * d_C;
-	CHECK(cudaMalloc((float**)& d_A, nBytes));
-	CHECK(cudaMalloc((float**)& d_B, nBytes));
-	CHECK(cudaMalloc((float**)& d_C, nBytes));
+    // malloc device global memory
+    float* d_A, * d_B, * d_C;
+    CHECK(cudaMalloc((float**)& d_A, nBytes));
+    CHECK(cudaMalloc((float**)& d_B, nBytes));
+    CHECK(cudaMalloc((float**)& d_C, nBytes));
 
-	// transfer data from host to device
-	CHECK(cudaMemcpy(d_A, h_A, nBytes, cudaMemcpyHostToDevice));
-	CHECK(cudaMemcpy(d_B, h_B, nBytes, cudaMemcpyHostToDevice));
-	CHECK(cudaMemcpy(d_C, gpuRef, nBytes, cudaMemcpyHostToDevice));
+    // transfer data from host to device
+    CHECK(cudaMemcpy(d_A, h_A, nBytes, cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_B, h_B, nBytes, cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_C, gpuRef, nBytes, cudaMemcpyHostToDevice));
 
-	// invoke kernel at host side
-	int iLen = 512;
-	dim3 block(iLen);
-	dim3 grid((nElem + block.x - 1) / block.x);
+    // invoke kernel at host side
+    int iLen = 512;
+    dim3 block(iLen);
+    dim3 grid((nElem + block.x - 1) / block.x);
 
-	iStart = cpuSecond();
-	sumArraysOnGPU << <grid, block >> > (d_A, d_B, d_C, nElem);
-	CHECK(cudaDeviceSynchronize());
-	iElaps = cpuSecond() - iStart;
-	printf("sumArraysOnGPU <<<  %d, %d  >>>  Time elapsed %f sec\n", grid.x,
-		block.x, iElaps);
+    iStart = cpuSecond();
+    sumArraysOnGPU << <grid, block >> > (d_A, d_B, d_C, nElem);
+    CHECK(cudaDeviceSynchronize());
+    iElaps = cpuSecond() - iStart;
+    printf("sumArraysOnGPU <<<  %d, %d  >>>  Time elapsed %f sec\n", grid.x,
+        block.x, iElaps);
 
-	// check kernel error
-	CHECK(cudaGetLastError());
+    // check kernel error
+    CHECK(cudaGetLastError());
 
-	// copy kernel result back to host side
-	CHECK(cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost));
+    // copy kernel result back to host side
+    CHECK(cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost));
 
-	// check device results
-	checkResult(hostRef, gpuRef, nElem);
+    // check device results
+    checkResult(hostRef, gpuRef, nElem);
 
-	// free device global memory
-	CHECK(cudaFree(d_A));
-	CHECK(cudaFree(d_B));
-	CHECK(cudaFree(d_C));
+    // free device global memory
+    CHECK(cudaFree(d_A));
+    CHECK(cudaFree(d_B));
+    CHECK(cudaFree(d_C));
 
-	// free host memory
-	free(h_A);
-	free(h_B);
-	free(hostRef);
-	free(gpuRef);
+    // free host memory
+    free(h_A);
+    free(h_B);
+    free(hostRef);
+    free(gpuRef);
 
-	return(0);
+    return(0);
 }
 ```
 
@@ -981,101 +981,101 @@ Arrays match.
 
 #define CHECK(call) \
 { \
-	const cudaError_t error = call; \
-	if (error != cudaSuccess) \
-	{ \
-		printf("Error: %s:%d, ", __FILE__, __LINE__); \
-		printf("code:%d, reason: %s\n", error, cudaGetErrorString(error)); \
-		exit(-10*error); \
-	} \
+    const cudaError_t error = call; \
+    if (error != cudaSuccess) \
+    { \
+        printf("Error: %s:%d, ", __FILE__, __LINE__); \
+        printf("code:%d, reason: %s\n", error, cudaGetErrorString(error)); \
+        exit(-10*error); \
+    } \
 }
 
 void initialInt(int* ip, int size)
 {
-	for (int i = 0; i < size; ++i)
-	{
-		ip[i] = i;
-	}
+    for (int i = 0; i < size; ++i)
+    {
+        ip[i] = i;
+    }
 }
 
 void printMatrix(int* C, const int nx, const int ny)
 {
-	int* ic = C;
-	printf("\nMatrix: (%d, %d)\n", nx, ny);
-	for (int iy = 0; iy < ny; ++iy)
-	{
-		for (int ix = 0; ix < nx; ++ix)
-		{
-			printf("%3d", ic[ix]);
-		}
-		ic += nx;
-		printf("\n");
-	}
-	printf("\n");
+    int* ic = C;
+    printf("\nMatrix: (%d, %d)\n", nx, ny);
+    for (int iy = 0; iy < ny; ++iy)
+    {
+        for (int ix = 0; ix < nx; ++ix)
+        {
+                rintf("%3d", ic[ix]);
+        }
+        ic += nx;
+        printf("\n");
+    }
+    printf("\n");
 }
 
 __global__ void printThreadIndex(int* A, const int nx, const int ny)
 {
-	int ix = threadIdx.x + blockIdx.x * blockDim.x;
-	int iy = threadIdx.y + blockIdx.y * blockDim.y;
-	unsigned int idx = iy * nx + ix;
-	printf("thread_d (%d, %d) block_id (%d, %d) coordinate (%d, %d) "
-		"global index %2d ival %2d\n", threadIdx.x, threadIdx.y, blockIdx.x,
-		blockIdx.y, ix, iy, idx, A[idx]);
+    int ix = threadIdx.x + blockIdx.x * blockDim.x;
+    int iy = threadIdx.y + blockIdx.y * blockDim.y;
+    unsigned int idx = iy * nx + ix;
+    printf("thread_d (%d, %d) block_id (%d, %d) coordinate (%d, %d) "
+        "global index %2d ival %2d\n", threadIdx.x, threadIdx.y, blockIdx.x,
+        blockIdx.y, ix, iy, idx, A[idx]);
 }
 
 
 int main(int argc, char** argv)
 {
-	printf("%s Starting...\n", argv[0]);
+    printf("%s Starting...\n", argv[0]);
 
-	// get device information
-	int dev = 0;
-	cudaDeviceProp deviceProp;
-	CHECK(cudaGetDeviceProperties(&deviceProp, dev));
-	printf("Using Device %d: %s\n", dev, deviceProp.name);
-	CHECK(cudaSetDevice(dev));
+    // get device information
+    int dev = 0;
+    cudaDeviceProp deviceProp;
+    CHECK(cudaGetDeviceProperties(&deviceProp, dev));
+    printf("Using Device %d: %s\n", dev, deviceProp.name);
+    CHECK(cudaSetDevice(dev));
 
-	// set matrix dimension
-	int nx = 8;
-	int ny = 6;
-	int nxy = nx * ny;
-	int nBytes = nxy * sizeof(float);
+    // set matrix dimension
+    int nx = 8;
+    int ny = 6;
+    int nxy = nx * ny;
+    int nBytes = nxy * sizeof(float);
 
-	// malloc host memory
-	int* h_A;
-	h_A = (int*)malloc(nBytes);
+    // malloc host memory
+    int* h_A;
+    h_A = (int*)malloc(nBytes);
 
-	// iniitialize host matrix with integer
-	for (int i = 0; i < nxy; i++)
-	{
-		h_A[i] = i;
-	}
-	printMatrix(h_A, nx, ny);
+    // iniitialize host matrix with integer
+    for (int i = 0; i < nxy; i++)
+    {
+        h_A[i] = i;
+    }
+    printMatrix(h_A, nx, ny);
 
-	// malloc device memory
-	int* d_MatA;
-	CHECK(cudaMalloc((void**)& d_MatA, nBytes));
+    // malloc device memory
+    int* d_MatA;
+    CHECK(cudaMalloc((void**)& d_MatA, nBytes));
 
-	// transfer data from host to device
-	CHECK(cudaMemcpy(d_MatA, h_A, nBytes, cudaMemcpyHostToDevice));
+    // transfer data from host to device
+    CHECK(cudaMemcpy(d_MatA, h_A, nBytes, cudaMemcpyHostToDevice));
 
-	// set up execution configuration
-	dim3 block(4, 2);
-	dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
+    // set up execution configuration
+    dim3 block(4, 2);
+    dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
 
-	// invoke the kernel
-	printThreadIndex << <grid, block >> > (d_MatA, nx, ny);
-	CHECK(cudaGetLastError());
+    // invoke the kernel
+    printThreadIndex << <grid, block >> > (d_MatA, nx, ny);
+    CHECK(cudaGetLastError());
 
-	// free host and devide memory
-	CHECK(cudaFree(d_MatA));
-	free(h_A);
+    // free host and devide memory
+    CHECK(cudaFree(d_MatA));
+    free(h_A);
 
-	// reset device
-	CHECK(cudaDeviceReset());
+    // reset device
+    CHECK(cudaDeviceReset());
 
-	return (0);
+    return (0);
 }
 ```
 
