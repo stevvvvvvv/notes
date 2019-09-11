@@ -2,7 +2,7 @@
 
 [toc]
 
-s## 整型
+## 整型
 
 c\++的基本整型分别是`char、short、int、long`和c++11新增的`long long`
 
