@@ -2,27 +2,34 @@
 
 [toc]
 
-### 第二章 CUDA编程模型
+## 第二章 CUDA编程模型
+
 - CUDA程序实现向量加法和向量乘法。
 
-#### 2.1 CUDA编程模型概述
+### 2.1 CUDA编程模型概述
 
 ![程序和编程模型实现之间的抽象结构](https://note.youdao.com/yws/api/personal/file/FC8BE2A3C91C4D9A9C1F94984EB884F7?method=download&shareKey=372f5cd4aa8f6f9c3ccd51d54b645556)
 
 - 除了与其他并行编程模型共有的抽象外，CUDA编程模型还利用GPU架构的计算能力提供了以下特用的功能：
+
 1. 一种通过层次结构在GPU中组织线程的方法。
 2. 一种通过层次结构在GPU中访问内存的方法。
 
-##### 2.1.1 CUDA编程结构
+#### 2.1.1 CUDA编程结构
+
 - 一个异构环境中包含多个CPU和GPU，要注意区分以下内容：
+
 1. 主机(host)：CPU及其内存(主机内存)
 2. 设备(device)：GPU及其内存(设备内存)
+
 - 在本书的代码示例中，主机内存中的变量名以h_为前缀，设备内存中的变量名以d_为前缀。
 - 内核(kernel)是CUDA编程模型的一个重要组成部分。
 - CUDA编程模型主要是异步的，因此在GPU上进行的运算可以与主机-设备通信重叠。
 - 一个典型的CUDA程序包括由并行代码互补的串行代码，如下图所示：
 ![](https://note.youdao.com/yws/api/personal/file/5A27C4574C624E6D87D77E676EE4B77C?method=download&shareKey=c70c7b328efac05c62837e254eb8397a)
+
 - 一个典型的CUDA程序实现流程遵循以下模式：
+
 1. 把数据从CPU内存拷贝到GPU内存。
 2. 调用核函数对存储在GPU内存中的数据进行操作。
 3. 将数据从GPU内存传送回到CPU内存。
@@ -1243,11 +1250,13 @@ dim3 grid((nx + block.x - 1) / block.x, 1);
 ![](https://note.youdao.com/yws/api/personal/file/BADA98CB8C414134BA2B152B5D721EA5?method=download&shareKey=740745aafbdb8c8262b677297f913a60)
 
 这种情况可以视作二维块二维网格的特殊情况，其中块的第二个维数是`1`，因此从块和线程到矩阵坐标的映射变成：
-```
+
+```c++
 ix = threadIdx.x + blockIdx.x * blockDim.x;
 iy = blockIdx.y;
 //  这种情况下threadIdx.y = 0, blociDim.y = 1
 ```
+
 这种新内核的优势是省去了一次整数乘法和一次整数加法
 
 - 从这些例子中可以看出：
@@ -1255,24 +1264,30 @@ iy = blockIdx.y;
 2. 传统的核函数实现一般不能获得最佳性能
 3. 对于一个给定的核函数，尝试使用不同的网格和线程块大小可以获得不同的性能
 
-#### 2.4 设备管理
+### 2.4 设备管理
+
 - 两种对GPU进行管理的方法：
 1. CUDA运行时API函数
 2. NVIDIA系统管理界面命令行`nvidia-smi`
 
-##### 2.4.1 使用运行时API查询GPU信息
+#### 2.4.1 使用运行时API查询GPU信息
+
 在CUDA运行时AIP中有很多函数可以帮助管理设备，可以使用以下函数查询GPU信息：
 
 `cudaError_t cudaGetDeviceProperties(cudaDeviceProp* prop, int device);`
 
-##### 2.4.2 确定最优GPU
+#### 2.4.2 确定最优GPU
+
 `props.multiProcessorCount`
 
-##### 2.4.3 使用`nvidia-smi`查询GPU信息
+#### 2.4.3 使用`nvidia-smi`查询GPU信息
+
 `nvidia-smi`是一个命令行工具，用于管理和监控GPU设备，查询GPU数量和设备ID：
-```
+
+```shell
 nvidia-smi -L
 ```
+
 查询GPU 0的详细信息：
 
 `$ nvidia-smi -q -i 0`
