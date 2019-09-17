@@ -23,6 +23,7 @@ nvcc -g -G xxx.cu -o xxx.o
 
 ```c++
 #include <stdio.h>
+#include <cuda_runtime.h>
 
 const int   threadsPerBlock = 512;
 const int   N       = 2048;
@@ -31,14 +32,14 @@ const int   blocksPerGrid   = (N + threadsPerBlock - 1) / threadsPerBlock; /* 4 
 __global__ void ReductionSum( float * d_a, float * d_partial_sum )
 {
     /* 申请共享内存, 存在于每个block中 */
-    __shared__ float partialSum[threadsPerBlock];
+    __shared__ float partialSum[threadsPerBlock]; // 共享内存以block为单位独立
 
     /* 确定索引 */
-    int i   = threadIdx.x + blockIdx.x * blockDim.x;
-    int tid = threadIdx.x;
+    int i   = threadIdx.x + blockIdx.x * blockDim.x; // 总线程中的index
+    int tid = threadIdx.x; // 当前block中的index
 
     /* 传global memory数据到shared memory */
-    partialSum[tid] = d_a[i];
+    partialSum[tid] = d_a[i]; // 分block对齐
 
     /* 传输同步 */
     __syncthreads();
