@@ -34,7 +34,7 @@ int threadId = blockIdx.x * blockDim.x + threadIdx.x
 ```
 
 示意图：
-|**表格中的blockDim.x=4**|threadIdx.x|threadIdx.x|threadIdx.x|threadIdx.x|
+|**表格中的blockDim.x=4, gridDim.x=5**|threadIdx.x|threadIdx.x|threadIdx.x|threadIdx.x|
 |---|---|---|---|---|---|
 |**blockIdx.x**|线程块0|线程0|线程1|线程2|线程3|
 |**blockIdx.x**|线程块1|线程0|线程1|线程2|线程3|
@@ -146,25 +146,23 @@ y = blockIdx.y * blockDim.y + threadIdx.y
 
 如：(注:`x`和`y`都从`0`开始)
 
-- (1)
+- (1)直接求
 
-```c++
-idx = blockIdx.x * blockDim.x + threadIdx.x
-=> grid坐标系x轴单位刻度block
--> block坐标系x轴单位刻度thread
+    ```c++
+    idx = blockIdx.x * blockDim.x + threadIdx.x
+    => grid坐标系x轴单位刻度block
+    -> block坐标系x轴单位刻度thread
 
-idy = blockIdx.y * blockDim.y + threadIdx.y
-=> grid坐标系y轴单位刻度block
--> block坐标系y轴单位刻度thread
+    idy = blockIdx.y * blockDim.y + threadIdx.y
+    => grid坐标系y轴单位刻度block
+    -> block坐标系y轴单位刻度thread
 
-===>(idx, idy)就是grid(thread)坐标系的绝对坐标
+    ===>(idx, idy)就是grid(thread)坐标系的绝对坐标
 
-那么一维数组索引：
-= idy * grid的(x轴)宽度(单位刻度是线程) + idx
+    那么一维数组索引：
+    = idy * grid的(x轴)宽度(单位刻度是线程) + idx
 
-thread_idx = ((gridDim.x * blockDim.x) * idy) + idx;
-```
+    thread_idx = ((gridDim.x * blockDim.x) * idy) + idx;
+    ```
 
-- (2)
-
-先求已经`thread`满了的`block`数量，算线程总数，再算剩下`thread`不满的`block`中线程(一维)`idx`，两次计算结果求和
+- (2)先求已经`thread`满了的`block`数量，算线程总数，再算剩下`thread`不满的`block`中线程(一维)`idx`，两次计算结果求和
