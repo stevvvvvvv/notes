@@ -1152,7 +1152,7 @@ thread_d (3, 1) block_id (1, 2) coordinate (7, 5) global index 47 ival 47
 - 编写一个CPU加法函数：
 
 ```c++
-void sumMartixOnHost(float *A, float *B, float *C, const int nx, const int)
+void sumMartixOnHost(float *A, float *B, float *C, const int nx, const int ny)
 {
     float *ia = A;
     float *ib = B;
@@ -1172,7 +1172,7 @@ void sumMartixOnHost(float *A, float *B, float *C, const int nx, const int)
 - 然后，创建一个核函数，目的是采用一个二维线程块进行矩阵求和：
 
 ```c++
-__global__ void sumMatrixOnGPU2D(float *MatA, float *MatB, float *MatC, intnx, int ny)
+__global__ void sumMatrixOnGPU2D(float *MatA, float *MatB, float *MatC, int nx, int ny)
 {
     unsigned int ix = threadIdx.x + blockIdx.x * blockDim.x;
     unsigned int iy = threadIdx.y + blockIdx.y * blockDim.y;
