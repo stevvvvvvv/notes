@@ -120,7 +120,7 @@ int blockId = blockIdx.z * gridDim.y * gridDim.x
 int threadId = blockId * blockDim.z * blockDim.y * blockDim.x
              + threadIdx.z * blockDim.y * blockDim.x
              + threadIdx.y * blockDim.x
-             + threadIdx
+             + threadIdx.x
 ```
 
 ## `2D*2D`表示`threadId`二维位置的示意图
